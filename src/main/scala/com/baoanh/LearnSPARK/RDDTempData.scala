@@ -1,8 +1,13 @@
 package com.baoanh.LearnSPARK
-
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
 import scalafx.application.JFXApp
-import swiftvis2.plotting._
-import swiftvis2.plotting.renderer.FXRenderer
+//import swiftvis2.plotting._
+//import swiftvis2.plotting.renderer.FXRenderer
+
+import vegas.sparkExt._
+import vegas._
+import vegas.render.WindowRenderer._
 
 object RDDTempData extends JFXApp with Context {
   /*
@@ -87,6 +92,8 @@ object RDDTempData extends JFXApp with Context {
   TempLowAvgByMonth.sortBy(_._1) foreach {
     case (m, avgtemp) => println(f"Month $m have low average $avgtemp temperature")
   }
+
+
   /*
    * Double RDD Function
    */
@@ -111,4 +118,19 @@ object RDDTempData extends JFXApp with Context {
 //  val counts = data.map(_.tmax).histogram(bins, true)
 //  val hist = Plot.histogramPlot(bins, counts, RedARGB, false)
 //  FXRenderer(hist, 800, 600)
+
+//  RDD to DataFrame
+  val tschema = StructType(Array(
+    StructField("month", IntegerType),
+    StructField("temps", DoubleType)
+  ))
+  val TempLowAvgByMonthRDDRow = TempLowAvgByMonth.map(dt => Row(dt._1.toInt, dt._2.toDouble))
+  val TempLowAvgByMonthDF = sparkSession.createDataFrame(TempLowAvgByMonthRDDRow,tschema)
+
+  val plot = Vegas("Temps", width = 800.0, height = 600.0).withDataFrame(TempLowAvgByMonthDF).
+    encodeX("month", Quant).encodeX2().
+    encodeY("temps", Quant).encodeY2().
+    mark(Point)
+
+  plot.show
 }
