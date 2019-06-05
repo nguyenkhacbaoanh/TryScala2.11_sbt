@@ -1,3 +1,5 @@
+project/
+target/
 .idea/
 BigDataAnalyst/
 App.java
@@ -21,3 +23,4 @@ Monokai Sublime Text 3.jar
 readme.txt
 stations.csv
 trips.csv
+.DS_Store
